@@ -1,0 +1,29 @@
+name: Example Loop with Array
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup-array:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Define Array
+        id: set-matrix
+        run: |
+          # Define an array with pairs of values (JSON format)
+          echo "::set-output name=matrix::[{\"key1\":\"value1\",\"key2\":\"value2\"},{\"key1\":\"value3\",\"key2\":\"value4\"}]"
+
+  process-array:
+    needs: setup-array
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pair: ${{ fromJson(needs.setup-array.outputs.matrix) }}
+    steps:
+      - name: Process Pair
+        run: |
+          echo "Processing pair with key1=${{ matrix.pair.key1 }} and key2=${{ matrix.pair.key2 }}"
